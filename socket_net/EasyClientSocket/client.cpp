@@ -37,17 +37,29 @@ int main()
 	else
 	{
 		std::cout << "连接服务器成功" << std::endl;
-
+		while(true)
+		{
+			std::cout << "请输入命令\n";
+			char sendBuf[128] = {};
+			std::cin >> sendBuf;
+			if (0 == strcmp(sendBuf, "exit"))
+				break;
+			else
+			{
+				send(_sock, sendBuf, strlen(sendBuf) + 1, 0);
+			}
+			//3接收服务器信息recv
+			char recvBuf[256] = {};
+			//返回接收到的长度
+			int nlen = recv(_sock, recvBuf, 256, 0);
+			if (nlen > 0)
+			{
+				std::cout << "接收到服务端数据：" << recvBuf << std::endl;
+			}
+		}
 
 	}
-	//3接收服务器信息recv
-	char recvBuf[256] = {};
-	//返回接收到的长度
-	int nlen = recv(_sock, recvBuf, 256, 0);
-	if (nlen > 0)
-	{
-		std::cout << "接收到服务端数据：" << recvBuf << std::endl;
-	}
+
 	//4关闭socket,closesocket
 	closesocket(_sock);
 	//清除windows socket环境

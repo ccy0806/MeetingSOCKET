@@ -45,18 +45,39 @@ int main()
 	//4等待接收客户端连接
 	sockaddr_in clientAddr = {};
 	int nAddrLen = sizeof(clientAddr);
+	SOCKET _cSock = accept(_sock, (sockaddr*)&clientAddr, &nAddrLen);
+	if (INVALID_SOCKET == _cSock)
+	{
+		std::cout << "接收到无效的客户端SOCKET" << std::endl;
+	}
+	//inet_ntoa:将地址数组转为字符串
+	std::cout << "新客户端加入：IP:" << inet_ntoa(clientAddr.sin_addr) << std::endl;
+	char _recvBuf[128] = {};
 	while (true)
 	{
-		SOCKET _cSock = accept(_sock, (sockaddr*)&clientAddr, &nAddrLen);
-		if (INVALID_SOCKET == _cSock)
+		//接收客户端数据
+		int nLen = recv(_cSock, _recvBuf, 128, 0);
+		if (nLen <= 0)
 		{
-			std::cout << "接收到无效的客户端SOCKET" << std::endl;
+			printf("客户端已退出");
+			break;
 		}
-		//inet_ntoa:将地址数组转为字符串
-		std::cout << "新客户端加入：IP:" << inet_ntoa(clientAddr.sin_addr) << std::endl;
+		if (0 == strcmp(_recvBuf, "getName"))
+		{
+			char msgBuf[] = "xq";
+			send(_cSock, msgBuf, strlen(msgBuf) + 1, 0);
+		}
+		else if (0 == strcmp(_recvBuf, "getAge"))
+		{
+			char msgBuf[] = "18";
+			send(_cSock, msgBuf, strlen(msgBuf) + 1, 0);
+		}
+		else
+		{
+			char msgBuf[] = "hello,i'm server.";
+			send(_cSock, msgBuf, strlen(msgBuf) + 1, 0);
+		}
 		//5 send  向客户端发送数据
-		char msgBuf[] = "hello,i'm server.";
-		send(_cSock, msgBuf, strlen(msgBuf) + 1, 0);
 
 	}
 
@@ -65,6 +86,7 @@ int main()
 
 
 	WSACleanup();
-
+	printf("已退出");
+	getchar();
 	return 0;
 }
